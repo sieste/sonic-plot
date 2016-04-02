@@ -1,13 +1,19 @@
 <html>
+
 <head>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="audiosynth/audiosynth.js"></script>
+  <script src="speakClient.js"></script>
 </head>
 
 <body>
+
 <div id='plotdiv' style='width:900px'></div>
+<div id="audio"></div>
+
 
 <script>
+
   // function to play a sound
   var sound = Synth.createInstrument('organ');
   play = function(value) {
@@ -16,13 +22,17 @@
     sound.play(notes[value], 4, .4); // play note in 4th octave for .4s using the 'organ' sound profile
   }
   
-  // create some random lats, lons over UK, and random data between 0 and 1
+  // create some random lats, lons over UK, and random data between 0 and 6
   data = []
   for (i = 0; i < 30; i++) {
+    lat = 49.0 + Math.random() * 11.0
+    lon = -8.0 + Math.random() * 11.0
+    val = Math.round(Math.random() * 6),
     data.push({
-      lat: [49.0 + Math.random() * 11.0],
-      lon: [-8.0 + Math.random() * 11.0],
-      value: Math.round(Math.random() * 6),
+      lat: [lat],
+      lon: [lon],
+      value: val,
+      text: 'lat: '+lat.toFixed(1)+', lon: '+lon.toFixed(1)+', value: '+val,
       type: 'scattergeo',
       mode: 'markers',
       marker: {size: 20, color: 'blue'},
@@ -30,6 +40,7 @@
     })
   }
   
+  // plot on a map with plotly
   var layout = {
     geo: {
       lonaxis: {
@@ -40,12 +51,23 @@
       }
     }
   }
-  the_plot = Plotly.newPlot('plotdiv', data, layout)
+  Plotly.newPlot('plotdiv', data, layout)
   
-  // add hover interaction
+  // sound on hover
   document.getElementById('plotdiv').on('plotly_hover', function(d) {
     play(d.points[0].data.value)
   })
+  // read out data on click
+  document.getElementById('plotdiv').on('plotly_click', function(d) {
+    setTimeout(function() {
+      lat = d.points[0].data.lat[0].toFixed(1)
+      lon = d.points[0].data.lon[0].toFixed(1)
+      val = d.points[0].data.value
+      text = 'lat: '+ lat + ', lon: ' + lon +', value: ' + val,
+      speak(text)
+    }, 400)
+  })
+
 </script>
 
 </body>
