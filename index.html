@@ -8,41 +8,44 @@
 
 <body>
 
-<div id='plotdiv' style='width:900px'></div>
+<div id='plotdiv' style='width:900px; height:900px'></div>
 <div id="audio"></div>
 
 
 <script>
 
-  // function to play a sound
-  var sound = Synth.createInstrument('organ');
+  // function to play a sound, expected argument is an integer between 0 and 6 
+  var sound = Synth.createInstrument('pling');
   play = function(value) {
-    value = Math.max(Math.min(value, 6), 0)
+    value = Math.round(Math.max(Math.min(value, 6), 0))
     notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
-    sound.play(notes[value], 4, .4); // play note in 4th octave for .4s using the 'organ' sound profile
+    sound.play(notes[value], 4, .1); // play note in 4th octave for .1sec using the custom 'pling' sound 
   }
   
-  // create some random lats, lons over UK, and random data between 0 and 6
+  // data is a north-south gradient on lat-lon grid over UK
   data = []
-  for (i = 0; i < 30; i++) {
-    lat = 49.0 + Math.random() * 11.0
-    lon = -8.0 + Math.random() * 11.0
-    val = Math.round(Math.random() * 6),
-    data.push({
-      lat: [lat],
-      lon: [lon],
-      value: val,
-      text: 'lat: '+lat.toFixed(1)+', lon: '+lon.toFixed(1)+', value: '+val,
-      type: 'scattergeo',
-      mode: 'markers',
-      marker: {size: 20, color: 'blue'},
-      showlegend: false
-    })
+  lat_seq = [49, 60, .5]
+  lon_seq = [-8, 3, .5]
+  for (lat = lat_seq[0]; lat <= lat_seq[1]; lat+=lat_seq[2]) {
+    for (lon = lon_seq[0]; lon <= lon_seq[1]; lon+=lon_seq[2]) {
+      val = Math.round((lat - lat_seq[0]) / (lat_seq[1] - lat_seq[0]) * 6)
+      data.push({
+        lat: [lat],
+        lon: [lon],
+        value: val,
+        text: 'lat: '+lat.toFixed(1)+', lon: '+lon.toFixed(1)+', value: '+val,
+        type: 'scattergeo',
+        mode: 'markers',
+        marker: {size: 32, color: 'rgba('+(val/6*255)+',0,0,.3)', symbol: 'square'},
+        showlegend: false
+      })
+    }
   }
   
-  // plot on a map with plotly
+  // map plot with plotly
   var layout = {
     geo: {
+      resolution: 50,
       lonaxis: {
         'range': [-8, 3]
       },
@@ -53,19 +56,17 @@
   }
   Plotly.newPlot('plotdiv', data, layout)
   
-  // sound on hover
+  // hover interaction: play sound with frequency modulated by value 
   document.getElementById('plotdiv').on('plotly_hover', function(d) {
     play(d.points[0].data.value)
   })
-  // read out data on click
+  // click interaction: play sound and read data 
   document.getElementById('plotdiv').on('plotly_click', function(d) {
-    setTimeout(function() {
-      lat = d.points[0].data.lat[0].toFixed(1)
-      lon = d.points[0].data.lon[0].toFixed(1)
-      val = d.points[0].data.value
-      text = 'lat: '+ lat + ', lon: ' + lon +', value: ' + val,
-      speak(text)
-    }, 400)
+    lat = d.points[0].data.lat[0].toFixed(1)
+    lon = d.points[0].data.lon[0].toFixed(1)
+    val = d.points[0].data.value
+    text = 'lat: '+ lat + ', lon: ' + lon +', value: ' + val,
+    speak(text)
   })
 
 </script>
