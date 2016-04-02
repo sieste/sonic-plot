@@ -288,6 +288,22 @@ Synth.loadSoundProfile({
 	}
 },
 {
+	name: 'pling',
+	attack: function() { return 0.001 },
+	dampen: function(sampleRate, frequency) { return 1+(frequency * 0.01); },
+	wave: function(i, sampleRate, frequency) {
+		var base = this.modulate[0];
+		return this.modulate[1](
+			i,
+			sampleRate,
+			frequency,
+			base(i, sampleRate, frequency, 0.5) 
+				//0.5*base(i, sampleRate, frequency, 0.25) 
+				//0.25*base(i, sampleRate, frequency, 0.5)
+		);
+	}
+},
+{
 	name: 'acoustic',
 	attack:	function() { return 0.002; },
 	dampen: function() { return 1; },
