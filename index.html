@@ -1,0 +1,53 @@
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="audiosynth/audiosynth.js"></script>
+</head>
+
+<body>
+<div id='plotdiv' style='width:900px'></div>
+
+<script>
+  // function to play a sound
+  var sound = Synth.createInstrument('organ');
+  play = function(value) {
+    value = Math.max(Math.min(value, 6), 0)
+    notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+    sound.play(notes[value], 4, .4); // play note in 4th octave for .4s using the 'organ' sound profile
+  }
+  
+  // create some random lats, lons over UK, and random data between 0 and 1
+  data = []
+  for (i = 0; i < 30; i++) {
+    data.push({
+      lat: [49.0 + Math.random() * 11.0],
+      lon: [-8.0 + Math.random() * 11.0],
+      value: Math.round(Math.random() * 6),
+      type: 'scattergeo',
+      mode: 'markers',
+      marker: {size: 20, color: 'blue'},
+      showlegend: false
+    })
+  }
+  
+  var layout = {
+    geo: {
+      lonaxis: {
+        'range': [-8, 3]
+      },
+      lataxis: {
+        'range': [49, 60]
+      }
+    }
+  }
+  the_plot = Plotly.newPlot('plotdiv', data, layout)
+  
+  // add hover interaction
+  document.getElementById('plotdiv').on('plotly_hover', function(d) {
+    play(d.points[0].data.value)
+  })
+</script>
+
+</body>
+</html>
+
