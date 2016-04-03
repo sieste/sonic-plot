@@ -32,7 +32,6 @@ function(x, y, waveform=c('sine', 'square', 'triangle', 'sawtooth'),
     triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
     sawtooth = 1/(1:9)
   )
-  a = a / sum(a)
   
   # waveform with instantaneous frequency yy
   signal = rowSums(
@@ -48,8 +47,8 @@ function(x, y, waveform=c('sine', 'square', 'triangle', 'sawtooth'),
   } else {
     ramp = 0.5
   }
-  Rchannel = round(amplitude * signal * ramp)
-  Lchannel = round(amplitude * signal * (1 - ramp))
+  Rchannel = round(32000 * signal * ramp)
+  Lchannel = round(32000 * signal * (1 - ramp))
   
   # construct tuneR wave object
   final = WaveMC(data = data.frame(FR=Rchannel, FL=Lchannel), samp.rate=smp_rate, bit=16)
