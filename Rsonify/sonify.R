@@ -4,12 +4,15 @@
 #'
 #' @param y The data values used to modulate the frequency.
 #' @param x The x values. Can be used when y values are unevenly spaced. Default is 1:length(y)
-#' @param waveform One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
-#' @param duration Duration in seconds. Default is 2.
+#' @param The waveform used for the sound. One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
+#' @param pulse_len Length of individual pulses in seconds. Default is 0.
+#' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
+#' @param duration Total duration in seconds. Default is 2.
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
 #' @param flim The frequency range to which the data is mapped. Default is c(440, 880).
+#' @param na_freq Frequency 
 #' @param play If TRUE, the sound is played. Default is TRUE. 
 #' @param player The program used to play the synthesized wave file. Default is 'mplayer' which is available under Linux. Under windows, try player='mplay32.exe' or player='wmplayer.exe'.
 #' @param player_opts Additional options passed to tuneR::play. Default is ' > /dev/null 2> /dev/null' which suppresses mplayer's output and error messages. Under windows, try player_opts='/play /close'.
@@ -31,7 +34,9 @@
 library(tuneR)
 
 sonify = 
-function(y, x=1:length(y), waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
+function(y, x=1:length(y), 
+         waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
+         pulse_len=0, pulse_amp=0.2,
          duration=2, amp_level = 1,
          stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, play=TRUE,
          player='mplayer', player_opts=' > /dev/null 2> /dev/null')
@@ -68,6 +73,17 @@ function(y, x=1:length(y), waveform=c('sine', 'square', 'triangle', 'sawtooth'),
       a[i] * sin(i * 2 * pi * cumsum(yy) / smp_rate)
     })
   )
+
+  # add pulses
+  if (pulse_len > 0) {
+    n_pulse_half = round(pulse_len * samp_rate / 2)
+    i_pulses = round((x - min(x)) / diff(range(x)) * (n-1)) + 1
+    for (i in seq(-n_pulse_half, n_pulse_half)) {
+      j = i_pulses + i
+      j = j[j > 0 & j <= n]
+      signal[j] = signal[j] + pulse_amp * runif(1)
+    }
+  }
   
   # multiply by linear function to simulate left-to-right transition
   if (stereo) {
