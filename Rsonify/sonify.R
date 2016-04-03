@@ -79,7 +79,7 @@ function(y, x=1:length(y),
 
   # add pulses
   if (pulse_len > 0) {
-    n_pulse_half = round(pulse_len * samp_rate / 2)
+    n_pulse_half = round(pulse_len * smp_rate / 2)
     i_pulses = round((x - min(x)) / diff(range(x)) * (n-1)) + 1
     for (i in seq(-n_pulse_half, n_pulse_half)) {
       j = i_pulses + i
