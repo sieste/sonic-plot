@@ -11,10 +11,11 @@ Sonification in javascript. Plot data on a map with plotly, and sonify it by hov
 
 Text-to-speech is currently not working in chrome.
 
-# R/
+# Rsonify
 
-Sonification of the Normal distribution in R. 
+Sonification of data in R.
 Uses R package tuneR to turn data into sound, and Linux MPlayer for playback.
 
-    Rscript sonic-plot.R
+    source('Rsonify/sonify.R')
+    sonify(runif(100))
 
