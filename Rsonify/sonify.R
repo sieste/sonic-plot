@@ -56,7 +56,7 @@ function(y, x=1:length(y), waveform=c('sine', 'square', 'triangle', 'sawtooth'),
 
   # fourier coefficients for different waveform
   a = switch(waveform,
-    sine = c(1, rep(0, 8)),
+    sine = 1,
     square = c(1, 0, 1/3, 0, 1/5, 0, 1/7, 0, 1/9),
     triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
     sawtooth = 1/(1:9)
