@@ -102,7 +102,9 @@ function(y, x=1:length(y),
   final = normalize(final, unit='16', level=amp_level)
   
   # synthesize
-  play(final, player, player_opts)
+  if (play) {
+    play(final, player, player_opts)
+  }
 
   # return the synthesized WaveMC object
   invisible(final)
