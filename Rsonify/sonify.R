@@ -4,19 +4,19 @@
 #'
 #' @param y The data values used to modulate the frequency.
 #' @param x The x values. Can be used when y values are unevenly spaced. Default is 1:length(y)
-#' @param waveform One of 'sine' (default), 'square', 'triangle', 'sawtooth'.
-#' @param duration Duration in seconds. Default is 2 seconds.
-#' @param amp_level Amplitude level between 0 and 1 to adjust the volume.
-#' @param stereo If TRUE (default) a left-to-right transition is simulated.
-#' @param smp_rate The sampling rate of the wav file, default: 44100 (CD quality)
-#' @param flim The frequency range to which the data is mapped. Default: [440, 880]
-#' @param play logical, whether the sound should be played. Default is TRUE. 
-#' @param player The program used to play the synthesized wave file. Default is 'mplayer' which is available under Linux.
-#' @param player_opts Additional options passed to tuneR::play. Default is ' > /dev/null 2> /dev/null' which suppresses mplayer's output and error messages.
+#' @param waveform One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
+#' @param duration Duration in seconds. Default is 2.
+#' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
+#' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
+#' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
+#' @param flim The frequency range to which the data is mapped. Default is c(440, 880).
+#' @param play If TRUE, the sound is played. Default is TRUE. 
+#' @param player The program used to play the synthesized wave file. Default is 'mplayer' which is available under Linux. Under windows, try player='mplay32.exe' or player='wmplayer.exe'.
+#' @param player_opts Additional options passed to tuneR::play. Default is ' > /dev/null 2> /dev/null' which suppresses mplayer's output and error messages. Under windows, try player_opts='/play /close'.
 #'
-#' @return The synthesized sound as a tuneR::WaveMC object.
+#' @return The synthesized sound saved as a tuneR::WaveMC object.
 #'
-#' @author Stefan Siegert \email{contact@@stefansiegert.net}
+#' @author Stefan Siegert \email{stefan_siegert@@gmx.de}
 #'
 #' @seealso tuneR::play, tuneR::WaveMC
 #' 
