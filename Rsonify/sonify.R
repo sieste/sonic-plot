@@ -11,22 +11,25 @@
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
-#' @param flim The frequency range to which the data is mapped. Default is c(440, 880).
-#' @param na_freq Frequency 
+#' @param flim The frequency range in Hz to which the data is mapped. Default is c(440, 880).
+#' @param na_freq Frequency in Hz that is used for NA data. Default is 300.
 #' @param play If TRUE, the sound is played. Default is TRUE. 
 #' @param player The program used to play the synthesized wave file. Default is 'mplayer' which is available under Linux. Under windows, try player='mplay32.exe' or player='wmplayer.exe'.
 #' @param player_opts Additional options passed to tuneR::play. Default is ' > /dev/null 2> /dev/null' which suppresses mplayer's output and error messages. Under windows, try player_opts='/play /close'.
 #'
 #' @return The synthesized sound saved as a tuneR::WaveMC object.
-#'
-#' @author Stefan Siegert \email{stefan_siegert@@gmx.de}
-#'
-#' @seealso tuneR::play, tuneR::WaveMC
 #' 
 #' @example
 #' x = seq(-3, 3, .01)
 #' y = dnorm(x)
 #' sonify(y)
+#'
+#' @seealso tuneR::play, tuneR::WaveMC
+#'
+#' @section Licence:
+#' GPL (>=2)
+#'
+#' @author Stefan Siegert \email{stefan_siegert@@gmx.de}
 #'
 #' @export 
 
