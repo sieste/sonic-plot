@@ -91,7 +91,6 @@ function(y, x=seq_along(y)-round(length(y)/2),
   n_tick_half = round(tick_len * smp_rate / 2)    
   for (i in seq_along(ticks)) {
     tick_ = ticks[i]
-print(tick_)
     if(tick_ > x_ran[1] & tick_ < x_ran[2]) {
       # ind is largest index smaller than tick index
       ind = which.max(xx[xx < tick_])
