@@ -2,12 +2,15 @@
 #'
 #' Synthesise a sound with frequency modulated by input data
 #'
-#' @param y The data values used to modulate the frequency.
 #' @param x The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2
-#' @param The waveform used for the sound. One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
+#' @param y The data values used to modulate the frequency.
+#' @param waveform The waveform used for the sound. One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
+#' @param ticks The location of ticks on the x axis, indicated with blasts of the sawtooth wave.
+#' @param tick_len the length of sound used for the ticks.
 #' @param pulse_len Length of individual pulses in seconds. Default is 0.1.
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
 #' @param duration Total duration in seconds. Default is 5.
+#' @param indicate_negatives amplitude of white noise to indicate negative y values.
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
@@ -36,15 +39,18 @@
 library(tuneR)
 
 sonify = 
-function(y, x=seq_along(y)-round(length(y)/2),
+function(x=NULL,y,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
          ticks = 0, tick_len = 0.05, 
-         pulse_len=0.1, pulse_amp=0.2,
-         duration=5, amp_level = 1, IndicateNegatives=0.5,
+         pulse_len=0, pulse_amp=0.2,
+         duration=5, amp_level = 1, indicate_negatives=0.5,
          stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, play=TRUE)
 {
 
   # error checking
+  if(is.null(x)) {
+    x=seq_along(y)-round(length(y)/2)
+  }
   flim = sort(flim)
   ticks = sort(ticks)
   waveform = match.arg(waveform)
@@ -96,7 +102,7 @@ function(y, x=seq_along(y)-round(length(y)/2),
       ind = which.max(xx[xx < tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
       xinds = xinds[xinds > 0 & xinds <= n]
-      signal[xinds] = MakeSignal(yy[xinds], waveform='sawtooth')
+      signal[xinds] = signal[xinds] + MakeSignal(yy[xinds], waveform='sawtooth')
     }
   }
     
@@ -112,11 +118,11 @@ function(y, x=seq_along(y)-round(length(y)/2),
   }
 
   # add white noise to negative values of signal if applicable
-  if(IndicateNegatives > 0 & y_ran[1] < 0) {
+  if(indicate_negatives > 0 & y_ran[1] < 0) {
     # find negative values of interpolated y
     transf_zero = flim[1] + (-y_ran[1] / diff(y_ran)) * diff(flim)
     Negatives = which(yy < transf_zero)
-    signal[Negatives] <- signal[Negatives] + IndicateNegatives * runif(length(Negatives))
+    signal[Negatives] <- signal[Negatives] + indicate_negatives * runif(length(Negatives))
   }
     
   # multiply by linear function to simulate left-to-right transition
@@ -145,3 +151,4 @@ function(y, x=seq_along(y)-round(length(y)/2),
   invisible(final)
 
 }
+
