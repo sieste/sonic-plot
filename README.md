@@ -14,7 +14,7 @@ Text-to-speech is currently not working in chrome.
 # Rsonify
 
 Sonification of data in R.
-Uses R package tuneR to turn data into sound, and Linux MPlayer for playback.
+Uses R package tuneR to turn data into sound. Requires `mplayer` when run in Linux.
 
     source('Rsonify/sonify.R')
     sonify(runif(100))
