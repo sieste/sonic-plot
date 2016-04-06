@@ -11,7 +11,8 @@
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
 #' @param interpolation The interpolation method to go from one frequency to the next. One of 'spline', 'linear', 'constant'. If 'constant', y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and y[n] is played for the duration x[n] - x[n-1]. Default is 'spline'.
 #' @param duration Total duration in seconds. Default is 5.
-#' @param indicate_negatives amplitude of white noise to indicate negative y values.
+#' @param noise_interval White noise is overlayed whenever y is inside this interval. Default is c(-Inf, 0). Set to NA to turn off noise.
+#' @param noise_amp Amplitude (between 0 and 1) of the noise used for noise_interval. Default is 0.5.
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
@@ -44,7 +45,8 @@ function(x=NULL,y=NULL,
          ticks = 0, tick_len = 0.05, 
          pulse_len=0, pulse_amp=0.2,
          interpolation=c('spline', 'linear', 'constant'),
-         duration=5, amp_level = 1, indicate_negatives=0.5,
+         noise_interval=c(-Inf, 0), noise_amp=0.5,
+         duration=5, amp_level = 1, 
          stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, play=TRUE)
 {
 
@@ -66,6 +68,7 @@ function(x=NULL,y=NULL,
 
   flim = sort(flim)
   ticks = sort(ticks)
+  noise_interval = sort(noise_interval)
   waveform = match.arg(waveform)
   interpolation = match.arg(interpolation)
 
@@ -134,11 +137,11 @@ function(x=NULL,y=NULL,
   }
 
   # add white noise to negative values of signal if applicable
-  if(indicate_negatives > 0 & y_ran[1] < 0) {
-    # find negative values of interpolated y
-    transf_zero = flim[1] + (-y_ran[1] / diff(y_ran)) * diff(flim)
-    Negatives = which(yy < transf_zero)
-    signal[Negatives] <- signal[Negatives] + indicate_negatives * runif(length(Negatives))
+  if(length(noise_interval) == 2) {
+    # rescale noise_interval to frequency range (use same transformation as for y)
+    noise_interval = (noise_interval - y_ran[1]) / diff(y_ran) * diff(flim) + flim[1]
+    inds = which(yy > noise_interval[1] & yy <= noise_interval[2])
+    signal[inds] = signal[inds] + noise_amp * runif(length(inds))
   }
     
   # multiply by linear function to simulate left-to-right transition
@@ -170,7 +173,7 @@ function(x=NULL,y=NULL,
 
 
 # function to make signal
-MakeSignal <- function(yy, waveform, smp_rate) {
+MakeSignal = function(yy, waveform, smp_rate) {
   # fourier coefficients for different waveform
   a = switch(waveform,
     sine = 1,
