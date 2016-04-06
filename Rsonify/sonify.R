@@ -39,7 +39,7 @@
 library(tuneR)
 
 sonify = 
-function(x=NULL,y,
+function(x=NULL,y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
          ticks = 0, tick_len = 0.05, 
          pulse_len=0, pulse_amp=0.2,
@@ -48,9 +48,20 @@ function(x=NULL,y,
 {
 
   # error checking
+  ################
+
+  # sonify() throws an error
+  stopifnot(!is.null(x) | !is.null(y))
+
+  # sonify(rnorm(10)) is interpreted as sonify(y=rnorm(10))
+  if (is.null(y)) {
+    y = x
+    x = NULL
+  }
   if(is.null(x)) {
     x=seq_along(y)-round(length(y)/2)
   }
+
   flim = sort(flim)
   ticks = sort(ticks)
   waveform = match.arg(waveform)
