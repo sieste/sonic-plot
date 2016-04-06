@@ -9,6 +9,7 @@
 #' @param tick_len the length of sound used for the ticks.
 #' @param pulse_len Length of individual pulses in seconds. Default is 0.1.
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
+#' @param interpolation The interpolation method to go from one frequency to the next. One of 'spline', 'linear', 'constant'. If 'constant', y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and y[n] is played for the duration x[n] - x[n-1]. Default is 'spline'.
 #' @param duration Total duration in seconds. Default is 5.
 #' @param indicate_negatives amplitude of white noise to indicate negative y values.
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
@@ -43,6 +44,7 @@ function(x=NULL,y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
          ticks = 0, tick_len = 0.05, 
          pulse_len=0, pulse_amp=0.2,
+         interpolation=c('spline', 'linear', 'constant'),
          duration=5, amp_level = 1, indicate_negatives=0.5,
          stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, play=TRUE)
 {
@@ -53,25 +55,42 @@ function(x=NULL,y=NULL,
   # sonify() throws an error
   stopifnot(!is.null(x) | !is.null(y))
 
-  # sonify(rnorm(10)) is interpreted as sonify(y=rnorm(10))
+  # sonify(rnorm(10)) is interpreted as sonify(x=NULL, y=rnorm(10))
   if (is.null(y)) {
     y = x
     x = NULL
   }
   if(is.null(x)) {
     x = seq_along(y) - round(length(y) / 2)
-  }
+  } 
+  stopifnot(length(x) == length(y))
 
   flim = sort(flim)
   ticks = sort(ticks)
   waveform = match.arg(waveform)
+  interpolation = match.arg(interpolation)
+
+  # if only one value is given, set interpolation = spline; only spline
+  # interpolation will not throw an error; also spline will return a constant,
+  # which is what would be expected from the other interpolation methods
+  if (length(x) < 2) {
+    interpolation = 'spline'
+  }
+
+  # for constant interpolation, append the last y value and the last
+  # x-interval; only then will the last y-value be played
+  if (interpolation == 'constant') {
+    y = c(y, tail(y,1))
+    x = c(x, tail(x,1) + diff(tail(x,2))) 
+  }
+
+  ################
 
   # auxiliary quantities
   n = duration * smp_rate
   y_ran = range(y, na.rm=TRUE)
   x_ran = range(x, na.rm=TRUE)
 
-  
   
   # rescale y values to desired frequency range 
   yy = (y - y_ran[1]) / diff(y_ran) * diff(flim) + flim[1]
@@ -80,7 +99,11 @@ function(x=NULL,y=NULL,
   yy[is.na(yy)] = na_freq
   
   # interpolate to length n
-  interp = spline(x=x, y=yy, n=n)
+  interp = switch(interpolation,
+    spline = spline(x=x, y=yy, n=n),
+    linear = approx(x=x, y=yy, n=n),
+    constant = approx(x=x, y=yy, n=n, method='constant')
+  )
   xx = interp$x
   yy = interp$y
   
