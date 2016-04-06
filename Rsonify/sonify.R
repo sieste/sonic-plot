@@ -18,7 +18,6 @@
 #' @param flim The frequency range in Hz to which the data is mapped. Default is c(440, 880).
 #' @param na_freq Frequency in Hz that is used for NA data. Default is 300.
 #' @param play If TRUE, the sound is played. Default is TRUE. 
-#' @param player The program used to play the synthesized wave file. Default is 'mplayer' which is available under Linux. Under windows, try player='mplay32.exe' or player='wmplayer.exe'.
 #'
 #' @return The synthesized sound saved as a tuneR::WaveMC object.
 #' 
