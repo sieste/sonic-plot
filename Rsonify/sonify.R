@@ -59,7 +59,7 @@ function(x=NULL,y=NULL,
     x = NULL
   }
   if(is.null(x)) {
-    x=seq_along(y)-round(length(y)/2)
+    x = seq_along(y) - round(length(y) / 2)
   }
 
   flim = sort(flim)
@@ -71,23 +71,6 @@ function(x=NULL,y=NULL,
   y_ran = range(y, na.rm=TRUE)
   x_ran = range(x, na.rm=TRUE)
 
-  # function to make signal
-  MakeSignal <- function(yy, waveform=waveform, ...) {
-    # fourier coefficients for different waveform
-    a = switch(waveform,
-      sine = 1,
-      square = c(1, 0, 1/3, 0, 1/5, 0, 1/7, 0, 1/9),
-      triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
-      sawtooth = 1/(1:9)
-    )
-    # create waveform with instantaneous frequency yy
-    sig = rowSums(
-    sapply(seq_along(a), function(i) {
-        a[i] * sin(i * 2 * pi * cumsum(yy) / smp_rate)
-      })
-    )
-    return(sig)
-  }
   
   
   # rescale y values to desired frequency range 
@@ -102,7 +85,7 @@ function(x=NULL,y=NULL,
   yy = interp$y
   
   # make signal for range of x and yy
-  signal = MakeSignal(yy, waveform=waveform)
+  signal = MakeSignal(yy, waveform=waveform, smp_rate=smp_rate)
 
   # indicate ticks by sawtooth burst
   n_tick_half = round(tick_len * smp_rate / 2)    
@@ -113,7 +96,7 @@ function(x=NULL,y=NULL,
       ind = which.max(xx[xx < tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
       xinds = xinds[xinds > 0 & xinds <= n]
-      signal[xinds] = signal[xinds] + MakeSignal(yy[xinds], waveform='sawtooth')
+      signal[xinds] = signal[xinds] + MakeSignal(yy[xinds], waveform='sawtooth', smp_rate=smp_rate)
     }
   }
     
@@ -163,3 +146,21 @@ function(x=NULL,y=NULL,
 
 }
 
+
+# function to make signal
+MakeSignal <- function(yy, waveform, smp_rate) {
+  # fourier coefficients for different waveform
+  a = switch(waveform,
+    sine = 1,
+    square = c(1, 0, 1/3, 0, 1/5, 0, 1/7, 0, 1/9),
+    triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
+    sawtooth = 1/(1:9)
+  )
+  # create waveform with instantaneous frequency yy
+  sig = rowSums(
+  sapply(seq_along(a), function(i) {
+      a[i] * sin(i * 2 * pi * cumsum(yy) / smp_rate)
+    })
+  )
+  return(sig)
+}
