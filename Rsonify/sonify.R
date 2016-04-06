@@ -11,8 +11,8 @@
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
 #' @param interpolation The interpolation method to go from one frequency to the next. One of 'spline', 'linear', 'constant'. If 'constant', y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and y[n] is played for the duration x[n] - x[n-1]. Default is 'spline'.
 #' @param duration Total duration in seconds. Default is 5.
-#' @param noise_interval White noise is overlayed whenever y is inside this interval. Default is c(-Inf, 0). Set to NA to turn off noise.
-#' @param noise_amp Amplitude (between 0 and 1) of the noise used for noise_interval. Default is 0.5.
+#' @param noise_interval White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). Default is c(-Inf, 0). Set to NA to turn off noise. 
+#' @param noise_amp Amplitude (between 0 and 1) of the noise used for noise_interval. Negative values (between 0 and -1) invert noise_interval. Default is 0.5.
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
@@ -69,6 +69,7 @@ function(x=NULL,y=NULL,
   flim = sort(flim)
   ticks = sort(ticks)
   noise_interval = sort(noise_interval)
+  noise_amp = min(max(noise_amp, -1), 1)
   waveform = match.arg(waveform)
   interpolation = match.arg(interpolation)
 
@@ -140,8 +141,11 @@ function(x=NULL,y=NULL,
   if(length(noise_interval) == 2) {
     # rescale noise_interval to frequency range (use same transformation as for y)
     noise_interval = (noise_interval - y_ran[1]) / diff(y_ran) * diff(flim) + flim[1]
-    inds = which(yy > noise_interval[1] & yy <= noise_interval[2])
-    signal[inds] = signal[inds] + noise_amp * runif(length(inds))
+    inds = (yy > noise_interval[1] & yy <= noise_interval[2])
+    if (noise_amp < 0) {
+      inds = !inds
+    }
+    signal[inds] = signal[inds] + abs(noise_amp) * runif(sum(inds))
   }
     
   # multiply by linear function to simulate left-to-right transition
