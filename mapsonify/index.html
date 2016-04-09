@@ -1,9 +1,9 @@
 <html>
 
 <head>
-  <script src="lib/plot.ly/plotly-latest.min.js"></script>
-  <script src="lib/p5/p5.min.js"></script>
-  <script src="lib/p5/p5.sound.min.js"></script>
+  <script src="../lib/plot.ly/plotly-latest.min.js"></script>
+  <script src="../lib/p5/p5.min.js"></script>
+  <script src="../lib/p5/p5.sound.min.js"></script>
 </head>
 
 <body>
@@ -26,7 +26,7 @@
   lon_seq = [-8, 3, .5]
   for (lat = lat_seq[0]; lat <= lat_seq[1]; lat+=lat_seq[2]) {
     for (lon = lon_seq[0]; lon <= lon_seq[1]; lon+=lon_seq[2]) {
-      val = Math.round((lat - lat_seq[0]) / (lat_seq[1] - lat_seq[0]) * 120)
+      val = Math.exp(-0.05*(lat - 55)*(lat-55) - 0.05* (lon+3)*(lon+3))
       data.push({
         lat: [lat],
         lon: [lon],
@@ -34,7 +34,7 @@
         text: 'lat: '+lat.toFixed(1)+', lon: '+lon.toFixed(1)+', value: '+val,
         type: 'scattergeo',
         mode: 'markers',
-        marker: {size: 32, color: 'rgba('+(val/6*255)+',0,0,.3)', symbol: 'square'},
+        marker: {size: 32, color: 'rgba('+(val*150)+',0,0,.3)', symbol: 'square'},
         showlegend: false
       })
     }
@@ -75,16 +75,16 @@
         lon === lon_seq[0] || 
         lon === lon_seq[1]) {
       if (playing) {
-        osc.amp(0, 0.5);
+        osc.amp(0, 0.25);
         playing = false
       }
     } else {
       if (!playing) {
         playing = true
       }
-      freq = 240 + d.points[0].data.value
-      osc.amp(0.5, 0.5);
-      osc.freq(freq, 0.5)
+      freq = 240 + d.points[0].data.value * 250
+      osc.amp(0.5, 0.25);
+      osc.freq(freq, 0.25)
     }
   })
 
@@ -93,7 +93,7 @@
     lat = d.points[0].data.lat[0].toFixed(1)
     lon = d.points[0].data.lon[0].toFixed(1)
     val = d.points[0].data.value
-    osc.amp(0, 0.5);
+    osc.amp(0, 0.25);
     playing = false;
   })
 
