@@ -3,13 +3,12 @@
 Sonification of data.
 
 
-# index.html 
+# mapsonify
 
-Sonification in javascript. Plot data on a map with plotly, and sonify it by hover and click interactions, using audiosynth and speak.js. Run with
+Sonification in javascript. Plot data on a map with plotly, and sonify it by hover and click interactions, using p5.sound. Run with
 
-    firefox index.html
+    firefox mapsonify/index.html
 
-Text-to-speech is currently not working in chrome.
 
 # Rsonify
 
