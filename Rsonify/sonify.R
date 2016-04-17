@@ -40,13 +40,13 @@
 library(tuneR)
 
 sonify = 
-function(x=NULL,y=NULL,
+function(x=NULL, y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
-         ticks = 0, tick_len = 0.05, 
+         ticks=0, tick_len=0.05, 
          pulse_len=0, pulse_amp=0.2,
          interpolation=c('spline', 'linear', 'constant'),
          noise_interval=c(-Inf, 0), noise_amp=0.5,
-         duration=5, amp_level = 1, 
+         duration=5, amp_level=1, 
          stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, play=TRUE)
 {
 
@@ -73,7 +73,7 @@ function(x=NULL,y=NULL,
   waveform = match.arg(waveform)
   interpolation = match.arg(interpolation)
 
-  # if only one value is given, set interpolation = spline; only spline
+  # if only one y-value is given, set interpolation = spline; only spline
   # interpolation will not throw an error; also spline will return a constant,
   # which is what would be expected from the other interpolation methods
   if (length(x) < 2) {
@@ -94,7 +94,6 @@ function(x=NULL,y=NULL,
   y_ran = range(y, na.rm=TRUE)
   x_ran = range(x, na.rm=TRUE)
 
-  
   # rescale y values to desired frequency range 
   yy = (y - y_ran[1]) / diff(y_ran) * diff(flim) + flim[1]
 
@@ -122,7 +121,8 @@ function(x=NULL,y=NULL,
       ind = which.max(xx[xx < tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
       xinds = xinds[xinds > 0 & xinds <= n]
-      signal[xinds] = signal[xinds] + MakeSignal(yy[xinds], waveform='sawtooth', smp_rate=smp_rate)
+      signal[xinds] = signal[xinds] + MakeSignal(yy[xinds], waveform='sawtooth', 
+                                                 smp_rate=smp_rate)
     }
   }
     
@@ -137,7 +137,7 @@ function(x=NULL,y=NULL,
     }
   }
 
-  # add white noise to negative values of signal if applicable
+  # add white noise whenever y is within (or outside) `noise_interval`
   if(length(noise_interval) == 2) {
     # rescale noise_interval to frequency range (use same transformation as for y)
     noise_interval = (noise_interval - y_ran[1]) / diff(y_ran) * diff(flim) + flim[1]
