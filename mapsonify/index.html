@@ -21,12 +21,12 @@
 <script>
 
   // data is a north-south gradient on lat-lon grid over UK
-  data = []
-  lat_seq = [49, 60, .5]
-  lon_seq = [-8, 3, .5]
+  data = [];
+  lat_seq = [49, 60, .5];
+  lon_seq = [-8, 3, .5];
   for (lat = lat_seq[0]; lat <= lat_seq[1]; lat+=lat_seq[2]) {
     for (lon = lon_seq[0]; lon <= lon_seq[1]; lon+=lon_seq[2]) {
-      val = Math.exp(-0.05*(lat - 55)*(lat-55) - 0.05* (lon+3)*(lon+3))
+      val = Math.exp(-0.05*(lat - 55)*(lat-55) - 0.05* (lon+3)*(lon+3));
       data.push({
         lat: [lat],
         lon: [lon],
@@ -36,7 +36,7 @@
         mode: 'markers',
         marker: {size: 32, color: 'rgba('+(val*150)+',0,0,.3)', symbol: 'square'},
         showlegend: false
-      })
+      });
     }
   }
   
@@ -51,8 +51,8 @@
         'range': [49, 60]
       }
     }
-  }
-  Plotly.newPlot('plotdiv', data, layout)
+  };
+  Plotly.newPlot('plotdiv', data, layout);
   
   // hover interaction: play sound with frequency modulated by value 
   var osc;
@@ -67,35 +67,33 @@
     playing = false;
   }
 
-  document.getElementById('plotdiv').on('plotly_hover', function(d) {
-    lat = d.points[0].data.lat[0]
-    lon = d.points[0].data.lon[0]
-    if (lat === lat_seq[0] || 
-        lat === lat_seq[1] || 
-        lon === lon_seq[0] || 
-        lon === lon_seq[1]) {
+  document.getElementById('plotdiv')
+  // play frequency while hovering
+    .on('plotly_hover', function(d) {
+      lat = d.points[0].data.lat[0];
+      lon = d.points[0].data.lon[0];
+      if (!playing) {
+        playing = true;
+      }
+      freq = 240 + d.points[0].data.value * 250;
+      osc.amp(0.5, 0.25);
+      osc.freq(freq, 0.25);
+    })
+  // stop playing on unhover
+    .on('plotly_unhover', function(d) {
       if (playing) {
         osc.amp(0, 0.25);
-        playing = false
+        playing = false;
       }
-    } else {
-      if (!playing) {
-        playing = true
-      }
-      freq = 240 + d.points[0].data.value * 250
-      osc.amp(0.5, 0.25);
-      osc.freq(freq, 0.25)
-    }
-  })
-
-  // click interaction: play sound and read data 
-  document.getElementById('plotdiv').on('plotly_click', function(d) {
-    lat = d.points[0].data.lat[0].toFixed(1)
-    lon = d.points[0].data.lon[0].toFixed(1)
-    val = d.points[0].data.value
-    osc.amp(0, 0.25);
-    playing = false;
-  })
+    })
+  // play sound on click
+    .on('plotly_click', function(d) {
+      lat = d.points[0].data.lat[0].toFixed(1);
+      lon = d.points[0].data.lon[0].toFixed(1);
+      val = d.points[0].data.value;
+      osc.amp(0, 0.25);
+      playing = false;
+    })
 
 </script>
 
