@@ -7,7 +7,7 @@
 #' @param waveform The waveform used for the sound. One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
 #' @param ticks The location of ticks on the x axis, indicated with blasts of the sawtooth wave.
 #' @param tick_len the length of sound used for the ticks.
-#' @param pulse_len Length of individual pulses in seconds. Default is 0.1.
+#' @param pulse_len Length of individual pulses in seconds to mark the x-values. Default is 0.
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
 #' @param interpolation The interpolation method to go from one frequency to the next. One of 'spline', 'linear', 'constant'. If 'constant', y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and y[n] is played for the duration x[n] - x[n-1]. Default is 'spline'.
 #' @param duration Total duration in seconds. Default is 5.
@@ -126,7 +126,7 @@ function(x=NULL, y=NULL,
     }
   }
     
-  # add pulses
+  # add a pulses of white noise to mark x values 
   if (pulse_len > 0) {
     n_pulse_half = round(pulse_len * smp_rate / 2)
     i_pulses = round((x - min(x)) / diff(range(x)) * (n-1)) + 1
