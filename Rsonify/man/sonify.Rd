@@ -9,7 +9,7 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
   pulse_amp = 0.2, interpolation = c("spline", "linear", "constant"),
   noise_interval = c(0, 0), noise_amp = 0.5, duration = 5,
   amp_level = 1, stereo = TRUE, smp_rate = 44100, flim = c(440, 880),
-  na_freq = 300, play = TRUE)
+  na_freq = 300, play = TRUE, player = NULL, player_args = NULL)
 }
 \arguments{
 \item{x}{The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2}
@@ -45,6 +45,10 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 \item{na_freq}{Frequency in Hz that is used for NA data. Default is 300.}
 
 \item{play}{If TRUE, the sound is played. Default is TRUE.}
+
+\item{player}{(Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe". Under Linux, the default is "mplayer". See `?tuneR::play` for details.}
+
+\item{player_args}{Further arguments passed to the wav player. Ignored if `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. See `?tuneR::play` for details.}
 }
 \value{
 The synthesized sound saved as a tuneR::WaveMC object.
@@ -57,9 +61,7 @@ Synthesise a sound with frequency modulated by input data
 GPL (>=2)
 }
 \examples{
-x = seq(-3, 3, .01)
-y = dnorm(x)
-sonify(y)
+sonify(dnorm(seq(-3,3,.1)), duration=1)
 
 }
 \author{
