@@ -1,0 +1,13 @@
+Package: sonify
+Version: 0.0-1
+Date: 2016-12-16
+Title: Data sonification - Turning data into sound
+Description: Sonification functions for R.
+Authors@R: c(person("Stefan", "Siegert", role = c("aut", "cre"),
+                     email = "s.siegert@exeter.ac.uk"),
+             person("Robin", "Williams", role = c("aut"))
+            )
+License: GPL (>= 2)
+Imports:
+    tuneR (>= 1.3.1)
+RoxygenNote: 5.0.1
