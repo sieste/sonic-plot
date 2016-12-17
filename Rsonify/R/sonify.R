@@ -19,13 +19,13 @@
 #' @param flim The frequency range in Hz to which the data is mapped. Default is c(440, 880).
 #' @param na_freq Frequency in Hz that is used for NA data. Default is 300.
 #' @param play If TRUE, the sound is played. Default is TRUE. 
+#' @param player (Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". See `?tuneR::play` for details.
+#' @param player_args Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. See `?tuneR::play` for details.
 #'
 #' @return The synthesized sound saved as a tuneR::WaveMC object.
 #' 
 #' @examples
-#' x = seq(-3, 3, .01)
-#' y = dnorm(x)
-#' sonify(y)
+#' sonify(dnorm(seq(-3,3,.1)), duration=1)
 #'
 #' @seealso tuneR::play, tuneR::WaveMC
 #'
@@ -49,7 +49,8 @@ function(x=NULL, y=NULL,
          interpolation=c('spline', 'linear', 'constant'),
          noise_interval=c(0, 0), noise_amp=0.5,
          duration=5, amp_level=1, 
-         stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, play=TRUE)
+         stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, 
+         play=TRUE, player=NULL, player_args=NULL)
 {
 
   # error checking
@@ -168,10 +169,14 @@ function(x=NULL, y=NULL,
   
   # synthesize
   if (play) {
-    if (Sys.info()[['sysname']] == 'Linux') {
-      tuneR::play(final, 'mplayer', ' > /dev/null 2> /dev/null')
+    if (is.null(player)) {
+      if (Sys.info()[['sysname']] == 'Linux') {
+        tuneR::play(final, 'mplayer', '&> /dev/null')
+      } else {
+        tuneR::play(final) # use tuneR defaults
+      }
     } else {
-      tuneR::play(final)
+      tuneR::play(final, player=player, player_args)
     }
   }
 
