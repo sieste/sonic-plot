@@ -1,18 +1,18 @@
-#' Sonify data
+#' Data sonification
 #'
-#' Synthesise a sound with frequency modulated by input data
+#' Sonification (or audification) is the process of representing data by sounds in the audible range. This package provides the R function `sonify` that transforms univariate data, sampled at regular or irregular intervals, into a continuous sound with time-varying frequency. The ups and downs in frequency represent the ups and downs in the data. Sonify provides a substitute for R's plot function to simplify data analysis for the visually impaired.
 #'
 #' @param x The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2
 #' @param y The data values used to modulate the frequency.
-#' @param waveform The waveform used for the sound. One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.
+#' @param waveform The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.
 #' @param ticks The location of x-axis ticks, indicated with short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).
 #' @param tick_len The duration of each tick sound.
 #' @param pulse_len Length of individual pulses in seconds to mark the x-values. Default is 0.
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
-#' @param interpolation The frequency interpolation method to connect the y-values. One of 'spline', 'linear', 'constant'. If 'constant', y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and y[n] is played for the duration x[n] - x[n-1]. Default is 'spline'.
+#' @param interpolation The interpolation method to connect the y-values before generating the sound. One of `spline`, `linear`, `constant`. `spline` and `linear` generate continous transitions between frequencies, `constant` changes frequencies abruptly. Note: If `interpolation=constant`, y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and the last y-value y[n] is played for the duration x[n] - x[n-1]. Default is `spline`.
 #' @param duration Total duration of the generated sound in seconds. Default is 5.
 #' @param noise_interval White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). For example, set to c(-Inf, 0) to indicate data in the negative range. Default is c(0,0) (no noise).
-#' @param noise_amp Amplitude (between 0 and 1) of the noise used for noise_interval. Negative values (between 0 and -1) invert noise_interval. Default is 0.5.
+#' @param noise_amp Amplitude (between 0 and 1) of the noise used for noise_interval. Negative values (between 0 and -1) invert noise_interval, i.e. noise is overlaid whenever y falls outside `noise_interval`. Default is 0.5.
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
@@ -22,17 +22,18 @@
 #' @param player (Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". See `?tuneR::play` for details.
 #' @param player_args Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. See `?tuneR::play` for details.
 #'
-#' @return The synthesized sound saved as a tuneR::WaveMC object.
+#' @return The synthesized sound saved as a `tuneR::WaveMC` object.
 #' 
 #' @examples
 #' sonify(dnorm(seq(-3,3,.1)), duration=1)
 #'
 #' @seealso tuneR::play, tuneR::WaveMC
 #'
+#' @author Stefan Siegert \email{s.siegert@@exeter.ac.uk} (please report bugs!)
+#'
 #' @section Licence:
 #' GPL (>=2)
 #'
-#' @author Stefan Siegert \email{s.siegert@@exeter.ac.uk}
 #' 
 #' @importFrom stats approx pnorm runif spline
 #' @importFrom utils tail

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sonify.R
 \name{sonify}
 \alias{sonify}
-\title{Sonify data}
+\title{Data sonification}
 \usage{
 sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
   "sawtooth"), ticks = NULL, tick_len = 0.05, pulse_len = 0,
@@ -16,7 +16,7 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 
 \item{y}{The data values used to modulate the frequency.}
 
-\item{waveform}{The waveform used for the sound. One of 'sine', 'square', 'triangle', 'sawtooth'. Default is 'sine'.}
+\item{waveform}{The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.}
 
 \item{ticks}{The location of x-axis ticks, indicated with short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).}
 
@@ -26,11 +26,11 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 
 \item{pulse_amp}{Amplitude of pulses between 0 and 1. Default is 0.2.}
 
-\item{interpolation}{The frequency interpolation method to connect the y-values. One of 'spline', 'linear', 'constant'. If 'constant', y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and y[n] is played for the duration x[n] - x[n-1]. Default is 'spline'.}
+\item{interpolation}{The interpolation method to connect the y-values before generating the sound. One of `spline`, `linear`, `constant`. `spline` and `linear` generate continous transitions between frequencies, `constant` changes frequencies abruptly. Note: If `interpolation=constant`, y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and the last y-value y[n] is played for the duration x[n] - x[n-1]. Default is `spline`.}
 
 \item{noise_interval}{White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). For example, set to c(-Inf, 0) to indicate data in the negative range. Default is c(0,0) (no noise).}
 
-\item{noise_amp}{Amplitude (between 0 and 1) of the noise used for noise_interval. Negative values (between 0 and -1) invert noise_interval. Default is 0.5.}
+\item{noise_amp}{Amplitude (between 0 and 1) of the noise used for noise_interval. Negative values (between 0 and -1) invert noise_interval, i.e. noise is overlaid whenever y falls outside `noise_interval`. Default is 0.5.}
 
 \item{duration}{Total duration of the generated sound in seconds. Default is 5.}
 
@@ -46,15 +46,15 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 
 \item{play}{If TRUE, the sound is played. Default is TRUE.}
 
-\item{player}{(Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe". Under Linux, the default is "mplayer". See `?tuneR::play` for details.}
+\item{player}{(Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". See `?tuneR::play` for details.}
 
-\item{player_args}{Further arguments passed to the wav player. Ignored if `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. See `?tuneR::play` for details.}
+\item{player_args}{Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. See `?tuneR::play` for details.}
 }
 \value{
-The synthesized sound saved as a tuneR::WaveMC object.
+The synthesized sound saved as a `tuneR::WaveMC` object.
 }
 \description{
-Synthesise a sound with frequency modulated by input data
+Sonification (or audification) is the process of representing data by sounds in the audible range. This package provides the R function `sonify` that transforms univariate data, sampled at regular or irregular intervals, into a continuous sound with time-varying frequency. The ups and downs in frequency represent the ups and downs in the data. Sonify provides a substitute for R's plot function to simplify data analysis for the visually impaired.
 }
 \section{Licence}{
 
@@ -65,7 +65,7 @@ sonify(dnorm(seq(-3,3,.1)), duration=1)
 
 }
 \author{
-Stefan Siegert \email{s.siegert@exeter.ac.uk}
+Stefan Siegert \email{s.siegert@exeter.ac.uk} (please report bugs!)
 }
 \seealso{
 tuneR::play, tuneR::WaveMC
