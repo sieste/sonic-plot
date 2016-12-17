@@ -1,0 +1,5 @@
+.*.swp
+libtmp
+sonify.Rcheck
+sonify*.tar.gz
+
