@@ -5,9 +5,9 @@
 #' @param x The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2
 #' @param y The data values used to modulate the frequency.
 #' @param waveform The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.
-#' @param ticks The location of x-axis ticks, indicated with short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).
+#' @param ticks The location of x-axis ticks. The ticks are indicated by short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).
 #' @param tick_len The duration of each tick sound.
-#' @param pulse_len Length of individual pulses in seconds to mark the x-values. Default is 0.
+#' @param pulse_len Length of white-noise pulses (in seconds) to mark the individual x-values. Default is 0.
 #' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
 #' @param interpolation The interpolation method to connect the y-values before generating the sound. One of `spline`, `linear`, `constant`. `spline` and `linear` generate continous transitions between frequencies, `constant` changes frequencies abruptly. Note: If `interpolation=constant`, y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and the last y-value y[n] is played for the duration x[n] - x[n-1]. Default is `spline`.
 #' @param duration Total duration of the generated sound in seconds. Default is 5.
@@ -16,7 +16,7 @@
 #' @param amp_level Amplitude level between 0 and 1 to adjust the volume. Default is 1.
 #' @param stereo If TRUE a left-to-right transition is simulated. Default is TRUE.
 #' @param smp_rate The sampling rate of the wav file. Default is 44100 (CD quality)
-#' @param flim The frequency range in Hz to which the data is mapped. Default is c(440, 880).
+#' @param flim The frequency range in Hz to which the data is mapped. The frequency mapping is linear. Default is c(440, 880).
 #' @param na_freq Frequency in Hz that is used for NA data. Default is 300.
 #' @param play If TRUE, the sound is played. Default is TRUE. 
 #' @param player (Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". See `?tuneR::play` for details.
@@ -45,12 +45,13 @@
 sonify = 
 function(x=NULL, y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
+         interpolation=c('spline', 'linear', 'constant'),
+         duration=5, flim=c(440, 880), 
          ticks=NULL, tick_len=0.05, 
          pulse_len=0, pulse_amp=0.2,
-         interpolation=c('spline', 'linear', 'constant'),
          noise_interval=c(0, 0), noise_amp=0.5,
-         duration=5, amp_level=1, 
-         stereo=TRUE, smp_rate=44100, flim=c(440, 880), na_freq=300, 
+         amp_level=1, na_freq=300, 
+         stereo=TRUE, smp_rate=44100, 
          play=TRUE, player=NULL, player_args=NULL)
 {
 
