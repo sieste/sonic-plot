@@ -72,7 +72,6 @@ function(x=NULL, y=NULL,
   stopifnot(length(x) == length(y))
   stopifnot(is.numeric(flim), length(flim)>1)
 
-
   flim = sort(flim[1:2])
   if (!is.null(ticks)) ticks = sort(ticks)
   noise_interval = sort(noise_interval)
@@ -98,8 +97,12 @@ function(x=NULL, y=NULL,
 
   # auxiliary quantities
   n = duration * smp_rate
-  y_ran = range(y, na.rm=TRUE)
   x_ran = range(x, na.rm=TRUE)
+  y_ran = range(y, na.rm=TRUE)
+  if (y_ran[1] == y_ran[2]) {
+    y_ran = y_ran + c(-1, 1)
+  }
+
 
   # rescale y values to desired frequency range 
   yy = (y - y_ran[1]) / diff(y_ran) * diff(flim) + flim[1]
