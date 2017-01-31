@@ -46,9 +46,9 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 
 \item{play}{If TRUE, the sound is played. Default is TRUE.}
 
-\item{player}{(Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". See `?tuneR::play` for details.}
+\item{player}{(Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". Under OS X, the default is "afplay". See `?tuneR::play` for details.}
 
-\item{player_args}{Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. See `?tuneR::play` for details.}
+\item{player_args}{Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. Under OS X the default is "". See `?tuneR::play` for details.}
 }
 \value{
 The synthesized sound saved as a `tuneR::WaveMC` object.
@@ -61,7 +61,8 @@ Sonification (or audification) is the process of representing data by sounds in 
 GPL (>=2)
 }
 \examples{
-sonify(dnorm(seq(-3,3,.1)), duration=1)
+obj = sonify(dnorm(seq(-3,3,.1)), duration=1, play=FALSE)
+\dontrun{sonify(dnorm(seq(-3,3,.1)), duration=1)}
 
 }
 \author{
