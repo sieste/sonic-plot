@@ -22,4 +22,6 @@ $(PACKAGE).Rcheck: $(R_PKG_tgz)
 libtmp/$(PACKAGE): $(R_PKG_tgz)
 	$(RCMD) INSTALL $(R_PKG_tgz) -l libtmp
 
+check-as-cran:
+	$(RCMD) check $(R_PKG_tgz) --as-cran
 
