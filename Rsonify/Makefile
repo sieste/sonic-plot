@@ -23,5 +23,7 @@ libtmp/$(PACKAGE): $(R_PKG_tgz)
 	$(RCMD) INSTALL $(R_PKG_tgz) -l libtmp
 
 check-as-cran:
-	$(RCMD) check $(R_PKG_tgz) --as-cran
+	R_LIBS=/home/stefan/lib/R R CMD check $(R_PKG_tgz) --as-cran && \
+	R_LIBS=/home/stefan/lib/R R-devel CMD check $(R_PKG_tgz) --as-cran
+
 
