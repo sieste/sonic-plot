@@ -4,8 +4,16 @@
 \alias{sonify.histogram}
 \title{Sonification of histogram objects}
 \usage{
-\method{sonify}{histogram}(obj, ...)
+\method{sonify}{histogram}(x, ...)
+}
+\arguments{
+\item{x}{An object of class histogram}
+
+\item{...}{additional arguments passed to sonify}
+}
+\value{
+The synthesized sound is returned as a `tuneR::WaveMC` object.
 }
 \description{
-Sonification of histogram objects
+S3 method to sonify histogram objects
 }

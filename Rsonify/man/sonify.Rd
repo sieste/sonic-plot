@@ -11,7 +11,7 @@
   flim = c(440, 880), ticks = NULL, tick_len = 0.05, pulse_len = 0,
   pulse_amp = 0.2, noise_interval = c(0, 0), noise_amp = 0.5,
   amp_level = 1, na_freq = 300, stereo = TRUE, smp_rate = 44100,
-  play = TRUE, player = NULL, player_args = NULL)
+  play = TRUE, player = NULL, player_args = NULL, ...)
 
 sonify(x = NULL, y = NULL, ...)
 }
@@ -55,9 +55,11 @@ sonify(x = NULL, y = NULL, ...)
 \item{player}{(Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". Under OS X, the default is "afplay". See `?tuneR::play` for details.}
 
 \item{player_args}{Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. Under OS X the default is "". See `?tuneR::play` for details.}
+
+\item{...}{additional arguments}
 }
 \value{
-The synthesized sound saved as a `tuneR::WaveMC` object.
+The synthesized sound is returned as a `tuneR::WaveMC` object.
 }
 \description{
 Sonification (or audification) is the process of representing data by sounds in the audible range. This package provides the R function `sonify` that transforms univariate data, sampled at regular or irregular intervals, into a continuous sound with time-varying frequency. The ups and downs in frequency represent the ups and downs in the data. Sonify provides a substitute for R's plot function to simplify data analysis for the visually impaired.

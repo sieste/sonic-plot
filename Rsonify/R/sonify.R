@@ -22,8 +22,9 @@
 #' @param play If TRUE, the sound is played. Default is TRUE. 
 #' @param player (Path to) a program capable of playing a wave file from the command line. Under windows, the default is "mplay32.exe" or "wmplayer.exe" (as specified in `?tuneR::play`). Under Linux, the default is "mplayer". Under OS X, the default is "afplay". See `?tuneR::play` for details.
 #' @param player_args Further arguments passed to the wav player. Ignored when `player` is unspecified. Under Windows the default is `"/play /close"`. Under Linux the default is `&>/dev/null`. Under OS X the default is "". See `?tuneR::play` for details.
+#' @param ... additional arguments
 #'
-#' @return The synthesized sound saved as a `tuneR::WaveMC` object.
+#' @return The synthesized sound is returned as a `tuneR::WaveMC` object.
 #' 
 #' @examples
 #' obj = sonify(dnorm(seq(-3,3,.1)), duration=1, play=FALSE)
@@ -57,7 +58,7 @@ function(x=NULL, y=NULL,
          noise_interval=c(0, 0), noise_amp=0.5,
          amp_level=1, na_freq=300, 
          stereo=TRUE, smp_rate=44100, 
-         play=TRUE, player=NULL, player_args=NULL)
+         play=TRUE, player=NULL, player_args=NULL, ...)
 {
 
   # error checking
@@ -268,15 +269,19 @@ make_notes = function(x, xx, yy, adsr, len, smp_rate) {
 
 
 #' Sonification of histogram objects
+#' 
+#' S3 method to sonify histogram objects
+#'
+#' @param x An object of class histogram
+#' @param ... additional arguments passed to sonify
+#' @return The synthesized sound is returned as a `tuneR::WaveMC` object.
 #'
 #' @export
-sonify.histogram = function(obj, ...) {
-  x = obj$mids
-  y = obj$counts
+sonify.histogram = function(x, ...) {
   args = list(...)
+  args[['x']] = x$breaks[-length(x$breaks)]
+  args[['y']] = x$counts
   args[['interpolation']] = 'constant'
-  args[['x']] = x
-  args[['y']] = y
   out = do.call(sonify, args)
   invisible(out)
 }
