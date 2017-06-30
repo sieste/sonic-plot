@@ -74,7 +74,11 @@ function(x, y=NULL,
     x = NULL
   }
   if(is.null(x)) {
-    x = ifelse(length(x) == 1, 0, seq_along(y) - length(y) / 2)
+    if (length(y) == 1) {
+      x = 0
+    } else {
+      x = seq_along(y) - length(y) / 2
+    }
   } 
   stopifnot(length(x) == length(y))
   stopifnot(is.numeric(flim), length(flim)>1)
@@ -150,7 +154,7 @@ function(x, y=NULL,
   n_tick_half = round(tick_len * smp_rate / 2)    
   for (i in seq_along(ticks)) {
     tick_ = ticks[i]
-    if(tick_ > x_ran[1] & tick_ < x_ran[2]) {
+    if(tick_ >= x_ran[1] & tick_ <= x_ran[2]) {
       # ind is largest index smaller than tick index
       ind = which.max(xx[xx < tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
@@ -257,9 +261,9 @@ make_notes = function(x, xx, yy, adsr, len, smp_rate) {
   x_ran = range(xx)
   for (i in seq_along(x)) {
     tick_ = x[i]
-    if(tick_ > x_ran[1] & tick_ < x_ran[2]) {
+    if(tick_ >= x_ran[1] & tick_ <= x_ran[2]) {
       # ind is largest index smaller than tick index
-      ind = which.max(xx[xx < tick_])
+      ind = which.max(xx[xx <= tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
       xinds = xinds[xinds > 0 & xinds <= n]
       sig = MakeSignal(yy[xinds], a=1/(1:9), smp_rate=smp_rate)
