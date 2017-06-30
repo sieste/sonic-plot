@@ -5,10 +5,10 @@
 \title{Data sonification}
 \usage{
 sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
-  "sawtooth"), interpolation = c("spline", "linear", "constant"),
-  duration = 5, flim = c(440, 880), ticks = NULL, tick_len = 0.05,
-  pulse_len = 0, pulse_amp = 0.2, noise_interval = c(0, 0),
-  noise_amp = 0.5, amp_level = 1, na_freq = 300, stereo = TRUE,
+  "sawtooth"), waveform_custom = NULL, interpolation = c("spline", "linear",
+  "constant"), duration = 5, flim = c(440, 880), ticks = NULL,
+  tick_len = 0.05, pulse_len = 0, pulse_amp = 0.2, noise_interval = c(0,
+  0), noise_amp = 0.5, amp_level = 1, na_freq = 300, stereo = TRUE,
   smp_rate = 44100, play = TRUE, player = NULL, player_args = NULL)
 }
 \arguments{
@@ -17,6 +17,8 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 \item{y}{The data values used to modulate the frequency.}
 
 \item{waveform}{The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.}
+
+\item{waveform_custom}{A vector of Fourier coefficients to define a custom waveform. Overrides the `waveform` argument. Default is NULL.}
 
 \item{interpolation}{The interpolation method to connect the y-values before generating the sound. One of `spline`, `linear`, `constant`. `spline` and `linear` generate continous transitions between frequencies, `constant` changes frequencies abruptly. Note: If `interpolation=constant`, y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and the last y-value y[n] is played for the duration x[n] - x[n-1]. Default is `spline`.}
 
@@ -30,7 +32,7 @@ sonify(x = NULL, y = NULL, waveform = c("sine", "square", "triangle",
 
 \item{pulse_len}{Length of white-noise pulses (in seconds) to mark the individual x-values. Default is 0.}
 
-\item{pulse_amp}{Amplitude of pulses between 0 and 1. Default is 0.2.}
+\item{pulse_amp}{Amplitude of pulses relative to the continuous sound. Between 0 and 1. Default is 0.2.}
 
 \item{noise_interval}{White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). For example, set to c(-Inf, 0) to indicate data in the negative range. Default is c(0,0) (no noise).}
 
@@ -60,15 +62,15 @@ Sonification (or audification) is the process of representing data by sounds in 
 
 GPL (>=2)
 }
+
 \examples{
 obj = sonify(dnorm(seq(-3,3,.1)), duration=1, play=FALSE)
 \dontrun{sonify(dnorm(seq(-3,3,.1)), duration=1)}
 
 }
-\author{
-Stefan Siegert \email{s.siegert@exeter.ac.uk} (please report bugs!)
-}
 \seealso{
 tuneR::play, tuneR::WaveMC
 }
-
+\author{
+Stefan Siegert \email{s.siegert@exeter.ac.uk} (please report bugs!)
+}
