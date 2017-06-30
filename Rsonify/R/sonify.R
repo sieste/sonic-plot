@@ -9,7 +9,7 @@
 #' @param ticks The location of x-axis ticks. The ticks are indicated by short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).
 #' @param tick_len The duration of each tick sound.
 #' @param pulse_len Length of white-noise pulses (in seconds) to mark the individual x-values. Default is 0.
-#' @param pulse_amp Amplitude of pulses between 0 and 1. Default is 0.2.
+#' @param pulse_amp Amplitude of pulses relative to the continuous sound. Between 0 and 1. Default is 0.2.
 #' @param interpolation The interpolation method to connect the y-values before generating the sound. One of `spline`, `linear`, `constant`. `spline` and `linear` generate continous transitions between frequencies, `constant` changes frequencies abruptly. Note: If `interpolation=constant`, y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and the last y-value y[n] is played for the duration x[n] - x[n-1]. Default is `spline`.
 #' @param duration Total duration of the generated sound in seconds. Default is 5.
 #' @param noise_interval White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). For example, set to c(-Inf, 0) to indicate data in the negative range. Default is c(0,0) (no noise).
@@ -136,7 +136,12 @@ function(x=NULL, y=NULL,
   a = a / sum(a^2)
   signal = MakeSignal(yy, a=a, smp_rate=smp_rate)
 
-  # indicate ticks by a burst
+  # indicate x-values by notes
+  points = make_notes(x=x, xx=xx, yy=yy, adsr=c(0.5, 0.05, 0.7, 0.35), 
+                      len=pulse_len, smp_rate=smp_rate)
+  signal = (1-pulse_amp) * signal + pulse_amp * points
+  
+  # indicate axis ticks by pulses of white noise 
   n_tick_half = round(tick_len * smp_rate / 2)    
   for (i in seq_along(ticks)) {
     tick_ = ticks[i]
@@ -145,22 +150,10 @@ function(x=NULL, y=NULL,
       ind = which.max(xx[xx < tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
       xinds = xinds[xinds > 0 & xinds <= n]
-      sig = MakeSignal(yy[xinds], a=1/(1:9), smp_rate=smp_rate)
-      envel = MakeAdsrEnvelope(length(sig), c(0.5, 0.05, 0.7, 0.35))
-      signal[xinds] = signal[xinds] + sig * envel
+      signal[xinds] = signal[xinds] + runif(length(xinds))
     }
   }
-    
-  # add pulses of white noise to mark x values 
-  if (pulse_len > 0) {
-    n_pulse_half = round(pulse_len * smp_rate / 2)
-    i_pulses = round((x - min(x)) / diff(range(x)) * (n-1)) + 1
-    for (i in seq(-n_pulse_half, n_pulse_half)) {
-      j = i_pulses + i
-      j = j[j > 0 & j <= n]
-      signal[j] = signal[j] + pulse_amp * runif(1)
-    }
-  }
+
 
   # add white noise whenever y is within (or outside) `noise_interval`
   if(length(noise_interval) == 2) {
@@ -227,7 +220,7 @@ MakeSignal = function(yy, a, smp_rate) {
 
 # function to create an Attack-Decay-Sustain-Release envelope
 # see https://en.wikipedia.org/wiki/Synthesizer for more information
-MakeAdsrEnvelope = function(n, adsr) {
+make_adsr_envelope = function(n, adsr) {
   n_a = round(adsr[1] * n)
   n_d = round(adsr[2] * n)
   n_r = round(adsr[4] * n)
@@ -241,4 +234,25 @@ MakeAdsrEnvelope = function(n, adsr) {
     seq(s, 0, len=n_r)
   )
   return(envel)
+}
+
+
+make_notes = function(x, xx, yy, adsr, len, smp_rate) {
+  n = length(xx)
+  signal = rep(0, n)
+  n_tick_half = round(len * smp_rate / 2)    
+  x_ran = range(xx)
+  for (i in seq_along(x)) {
+    tick_ = x[i]
+    if(tick_ > x_ran[1] & tick_ < x_ran[2]) {
+      # ind is largest index smaller than tick index
+      ind = which.max(xx[xx < tick_])
+      xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
+      xinds = xinds[xinds > 0 & xinds <= n]
+      sig = MakeSignal(yy[xinds], a=1/(1:9), smp_rate=smp_rate)
+      envel = make_adsr_envelope(length(sig), adsr)
+      signal[xinds] = signal[xinds] + sig * envel
+    }
+  }
+  return(signal)
 }
