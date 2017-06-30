@@ -203,6 +203,7 @@ MakeSignal = function(yy, waveform, smp_rate) {
     triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
     sawtooth = 1/(1:9)
   )
+  a = a / sum(a^2)
   # create waveform with instantaneous frequency yy
   sig = rowSums(
   sapply(seq_along(a), function(i) {
