@@ -2,14 +2,15 @@
 #'
 #' Sonification (or audification) is the process of representing data by sounds in the audible range. This package provides the R function `sonify` that transforms univariate data, sampled at regular or irregular intervals, into a continuous sound with time-varying frequency. The ups and downs in frequency represent the ups and downs in the data. Sonify provides a substitute for R's plot function to simplify data analysis for the visually impaired.
 #'
-#' @param x The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2
-#' @param y The data values used to modulate the frequency.
+#' @param x If `y` is unspecified, `x` is taken as the data to be sonified. If `y` is specified, `x` indicates values along the time axis, which can be useful to sonify unevenly spaced data. 
+#' @param y The data to be sonified.
 #' @param waveform The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.
 #' @param waveform_custom A vector of Fourier coefficients to define a custom waveform. Overrides the `waveform` argument. Default is NULL. 
 #' @param ticks The location of x-axis ticks. The ticks are indicated by short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).
 #' @param tick_len The duration of each tick sound.
 #' @param pulse_len Length of white-noise pulses (in seconds) to mark the individual x-values. Default is 0.
 #' @param pulse_amp Amplitude of pulses relative to the continuous sound. Between 0 and 1. Default is 0.2.
+#' @param pulse_adsr Attack-decay-sustain-release (ADSR) envelope for the pulses, described by a 4-element vector. See details. Default is `c(0.5, 0.05, 0.7, 0.35)`.
 #' @param interpolation The interpolation method to connect the y-values before generating the sound. One of `spline`, `linear`, `constant`. `spline` and `linear` generate continous transitions between frequencies, `constant` changes frequencies abruptly. Note: If `interpolation=constant`, y[1] is played from x[1] to x[2], y[2] is played from x[2] to x[3], etc, and the last y-value y[n] is played for the duration x[n] - x[n-1]. Default is `spline`.
 #' @param duration Total duration of the generated sound in seconds. Default is 5.
 #' @param noise_interval White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). For example, set to c(-Inf, 0) to indicate data in the negative range. Default is c(0,0) (no noise).
@@ -30,6 +31,9 @@
 #' obj = sonify(dnorm(seq(-3,3,.1)), duration=1, play=FALSE)
 #' \dontrun{sonify(dnorm(seq(-3,3,.1)), duration=1)}
 #'
+#' @details
+#' The ADSR envelope `y(x)` for `x` between `0` and `1` is calculated from the 4-vector `pulse_adsr=c(a,d,s,r)` as follows: Linearly increase `y` from `0` to `1` for `x` between `0` and `a`. Linearly decrease `y` from `1` to `s` for `x` between `a` and `a+d`. Leave `y` constant at `s` for `x` between `a+d` and `1-r`. Linearly decrease `y` from `s` to `0` for `x` between `1-r` and `1`.
+#'
 #' @seealso tuneR::play, tuneR::WaveMC
 #'
 #' @author Stefan Siegert \email{s.siegert@@exeter.ac.uk} (please report bugs!)
@@ -48,13 +52,13 @@
 
 
 sonify.default = 
-function(x=NULL, y=NULL,
+function(x, y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
          waveform_custom=NULL,
          interpolation=c('spline', 'linear', 'constant'),
          duration=5, flim=c(440, 880), 
          ticks=NULL, tick_len=0.05, 
-         pulse_len=0, pulse_amp=0.2,
+         pulse_len=0, pulse_amp=0.2, pulse_adsr=c(0.5, 0.05, 0.7, 0.35),
          noise_interval=c(0, 0), noise_amp=0.5,
          amp_level=1, na_freq=300, 
          stereo=TRUE, smp_rate=44100, 
@@ -77,6 +81,7 @@ function(x=NULL, y=NULL,
   } 
   stopifnot(length(x) == length(y))
   stopifnot(is.numeric(flim), length(flim)>1)
+  stopifnot(all(pulse_adsr >= 0), all(pulse_adsr <= 1), sum(pulse_adsr[c(1,2,4)])<=1)
 
   flim = sort(flim[1:2])
   if (!is.null(ticks)) ticks = sort(ticks)
@@ -140,7 +145,7 @@ function(x=NULL, y=NULL,
   signal = MakeSignal(yy, a=a, smp_rate=smp_rate)
 
   # indicate x-values by notes
-  points = make_notes(x=x, xx=xx, yy=yy, adsr=c(0.5, 0.05, 0.7, 0.35), 
+  points = make_notes(x=x, xx=xx, yy=yy, adsr=pulse_adsr, 
                       len=pulse_len, smp_rate=smp_rate)
   signal = (1-pulse_amp) * signal + pulse_amp * points
   
@@ -175,7 +180,6 @@ function(x=NULL, y=NULL,
   } else {
     ramp = rep(0.5, times=n)
   }
-
   Rchannel = round(32000 * signal * ramp)
   Lchannel = round(32000 * signal * (1 - ramp))
   
@@ -204,6 +208,7 @@ function(x=NULL, y=NULL,
 }
 
 
+#' Generic sonify function
 #' @rdname sonify
 #' @export
 sonify = function(x=NULL, y=NULL, ...) {
@@ -227,6 +232,7 @@ MakeSignal = function(yy, a, smp_rate) {
 
   return(sig)
 }
+
 
 # function to create an Attack-Decay-Sustain-Release envelope
 # see https://en.wikipedia.org/wiki/Synthesizer for more information
@@ -285,5 +291,7 @@ sonify.histogram = function(x, ...) {
   out = do.call(sonify, args)
   invisible(out)
 }
+
+
 
 

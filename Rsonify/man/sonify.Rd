@@ -5,20 +5,21 @@
 \alias{sonify}
 \title{Data sonification}
 \usage{
-\method{sonify}{default}(x = NULL, y = NULL, waveform = c("sine",
-  "square", "triangle", "sawtooth"), waveform_custom = NULL,
+\method{sonify}{default}(x, y = NULL, waveform = c("sine", "square",
+  "triangle", "sawtooth"), waveform_custom = NULL,
   interpolation = c("spline", "linear", "constant"), duration = 5,
   flim = c(440, 880), ticks = NULL, tick_len = 0.05, pulse_len = 0,
-  pulse_amp = 0.2, noise_interval = c(0, 0), noise_amp = 0.5,
-  amp_level = 1, na_freq = 300, stereo = TRUE, smp_rate = 44100,
-  play = TRUE, player = NULL, player_args = NULL, ...)
+  pulse_amp = 0.2, pulse_adsr = c(0.5, 0.05, 0.7, 0.35),
+  noise_interval = c(0, 0), noise_amp = 0.5, amp_level = 1,
+  na_freq = 300, stereo = TRUE, smp_rate = 44100, play = TRUE,
+  player = NULL, player_args = NULL, ...)
 
 sonify(x = NULL, y = NULL, ...)
 }
 \arguments{
-\item{x}{The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2}
+\item{x}{If `y` is unspecified, `x` is taken as the data to be sonified. If `y` is specified, `x` indicates values along the time axis, which can be useful to sonify unevenly spaced data.}
 
-\item{y}{The data values used to modulate the frequency.}
+\item{y}{The data to be sonified.}
 
 \item{waveform}{The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.}
 
@@ -37,6 +38,8 @@ sonify(x = NULL, y = NULL, ...)
 \item{pulse_len}{Length of white-noise pulses (in seconds) to mark the individual x-values. Default is 0.}
 
 \item{pulse_amp}{Amplitude of pulses relative to the continuous sound. Between 0 and 1. Default is 0.2.}
+
+\item{pulse_adsr}{Attack-decay-sustain-release (ADSR) envelope for the pulses, described by a 4-element vector. See details. Default is `c(0.5, 0.05, 0.7, 0.35)`.}
 
 \item{noise_interval}{White noise is overlayed whenever y is inside this interval (if noise_amp > 0) or outside this interval (if noise_amp < 0). For example, set to c(-Inf, 0) to indicate data in the negative range. Default is c(0,0) (no noise).}
 
@@ -63,6 +66,11 @@ The synthesized sound is returned as a `tuneR::WaveMC` object.
 }
 \description{
 Sonification (or audification) is the process of representing data by sounds in the audible range. This package provides the R function `sonify` that transforms univariate data, sampled at regular or irregular intervals, into a continuous sound with time-varying frequency. The ups and downs in frequency represent the ups and downs in the data. Sonify provides a substitute for R's plot function to simplify data analysis for the visually impaired.
+
+Generic sonify function
+}
+\details{
+The ADSR envelope `y(x)` for `x` between `0` and `1` is calculated from the 4-vector `pulse_adsr=c(a,d,s,r)` as follows: Linearly increase `y` from `0` to `1` for `x` between `0` and `a`. Linearly decrease `y` from `1` to `s` for `x` between `a` and `a+d`. Leave `y` constant at `s` for `x` between `a+d` and `1-r`. Linearly decrease `y` from `s` to `0` for `x` between `1-r` and `1`.
 }
 \section{Licence}{
 
