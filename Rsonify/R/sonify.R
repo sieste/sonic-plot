@@ -5,6 +5,7 @@
 #' @param x The x values. Can be used when y values are unevenly spaced. Default is -length(y)/2:length(y)/2
 #' @param y The data values used to modulate the frequency.
 #' @param waveform The waveform used for the sound. One of `sine`, `square`, `triangle`, `sawtooth`. Default is `sine`.
+#' @param waveform_custom A vector of Fourier coefficients to define a custom waveform. Overrides the `waveform` argument. Default is NULL. 
 #' @param ticks The location of x-axis ticks. The ticks are indicated by short bursts of a sawtooth wave (duration set by `tick_len`). The default is NULL (no ticks).
 #' @param tick_len The duration of each tick sound.
 #' @param pulse_len Length of white-noise pulses (in seconds) to mark the individual x-values. Default is 0.
@@ -46,6 +47,7 @@
 sonify = 
 function(x=NULL, y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
+         waveform_custom=NULL,
          interpolation=c('spline', 'linear', 'constant'),
          duration=5, flim=c(440, 880), 
          ticks=NULL, tick_len=0.05, 
@@ -121,7 +123,18 @@ function(x=NULL, y=NULL,
   yy = interp$y
   
   # make signal for range of x and yy
-  signal = MakeSignal(yy, waveform=waveform, smp_rate=smp_rate)
+  if (!is.null(waveform_custom)) {
+    a = waveform_custom
+  } else {
+    a = switch(waveform,
+      sine = 1,
+      square = c(1, 0, 1/3, 0, 1/5, 0, 1/7, 0, 1/9),
+      triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
+      sawtooth = 1/(1:9)
+    )
+  }
+  a = a / sum(a^2)
+  signal = MakeSignal(yy, a=a, smp_rate=smp_rate)
 
   # indicate ticks by a sawtooth burst
   n_tick_half = round(tick_len * smp_rate / 2)    
@@ -195,15 +208,8 @@ function(x=NULL, y=NULL,
 
 
 # function to make signal
-MakeSignal = function(yy, waveform, smp_rate) {
+MakeSignal = function(yy, a, smp_rate) {
   # fourier coefficients for different waveform
-  a = switch(waveform,
-    sine = 1,
-    square = c(1, 0, 1/3, 0, 1/5, 0, 1/7, 0, 1/9),
-    triangle = c(1, 0, -1/9, 0, 1/25, 0, -1/49, 0, 1/81),
-    sawtooth = 1/(1:9)
-  )
-  a = a / sum(a^2)
   # create waveform with instantaneous frequency yy
   sig = rowSums(
   sapply(seq_along(a), function(i) {
