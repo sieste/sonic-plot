@@ -68,16 +68,13 @@ function(x, y=NULL,
   # error checking
   ################
 
-  # sonify() throws an error
-  stopifnot(!is.null(x) | !is.null(y))
-
   # sonify(rnorm(10)) is interpreted as sonify(x=NULL, y=rnorm(10))
   if (is.null(y)) {
     y = x
     x = NULL
   }
   if(is.null(x)) {
-    x = seq_along(y) - round(length(y) / 2)
+    x = ifelse(length(x) == 1, 0, seq_along(y) - length(y) / 2)
   } 
   stopifnot(length(x) == length(y))
   stopifnot(is.numeric(flim), length(flim)>1)
