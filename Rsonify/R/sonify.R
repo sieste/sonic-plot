@@ -136,7 +136,7 @@ function(x=NULL, y=NULL,
   a = a / sum(a^2)
   signal = MakeSignal(yy, a=a, smp_rate=smp_rate)
 
-  # indicate ticks by a sawtooth burst
+  # indicate ticks by a burst
   n_tick_half = round(tick_len * smp_rate / 2)    
   for (i in seq_along(ticks)) {
     tick_ = ticks[i]
@@ -145,8 +145,9 @@ function(x=NULL, y=NULL,
       ind = which.max(xx[xx < tick_])
       xinds = (ind - n_tick_half):(ind + 1 + n_tick_half)
       xinds = xinds[xinds > 0 & xinds <= n]
-      signal[xinds] = signal[xinds] + MakeSignal(yy[xinds], waveform='sawtooth', 
-                                                 smp_rate=smp_rate)
+      sig = MakeSignal(yy[xinds], a=1/(1:9), smp_rate=smp_rate)
+      envel = MakeAdsrEnvelope(length(sig), c(0.5, 0.05, 0.7, 0.35))
+      signal[xinds] = signal[xinds] + sig * envel
     }
   }
     
@@ -209,7 +210,6 @@ function(x=NULL, y=NULL,
 
 # function to make signal
 MakeSignal = function(yy, a, smp_rate) {
-  # fourier coefficients for different waveform
   # create waveform with instantaneous frequency yy
   sig = rowSums(
   sapply(seq_along(a), function(i) {
@@ -225,3 +225,20 @@ MakeSignal = function(yy, a, smp_rate) {
   return(sig)
 }
 
+# function to create an Attack-Decay-Sustain-Release envelope
+# see https://en.wikipedia.org/wiki/Synthesizer for more information
+MakeAdsrEnvelope = function(n, adsr) {
+  n_a = round(adsr[1] * n)
+  n_d = round(adsr[2] * n)
+  n_r = round(adsr[4] * n)
+  s = adsr[3]
+  n_s = n - (n_a + n_d + n_r)
+  
+  envel = c(
+    seq(0, 1, len=n_a), 
+    seq(1, s, len=n_d),
+    rep(s, n_s),
+    seq(s, 0, len=n_r)
+  )
+  return(envel)
+}
