@@ -41,10 +41,12 @@
 #' @importFrom utils tail
 #' @importFrom tuneR WaveMC normalize play
 #'
+#' @rdname sonify
+#'
 #' @export 
 
 
-sonify = 
+sonify.default = 
 function(x=NULL, y=NULL,
          waveform=c('sine', 'square', 'triangle', 'sawtooth'), 
          waveform_custom=NULL,
@@ -201,6 +203,13 @@ function(x=NULL, y=NULL,
 }
 
 
+#' @rdname sonify
+#' @export
+sonify = function(x=NULL, y=NULL, ...) {
+  UseMethod('sonify')
+}
+
+
 # function to make signal
 MakeSignal = function(yy, a, smp_rate) {
   # create waveform with instantaneous frequency yy
@@ -256,3 +265,20 @@ make_notes = function(x, xx, yy, adsr, len, smp_rate) {
   }
   return(signal)
 }
+
+
+#' Sonification of histogram objects
+#'
+#' @export
+sonify.histogram = function(obj, ...) {
+  x = obj$mids
+  y = obj$counts
+  args = list(...)
+  args[['interpolation']] = 'constant'
+  args[['x']] = x
+  args[['y']] = y
+  out = do.call(sonify, args)
+  invisible(out)
+}
+
+
